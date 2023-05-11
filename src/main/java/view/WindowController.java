@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import mod.Conway;
 import mod.FileManager;
+import mod.Maps;
 import mod.Version;
 import java.io.*;
 
@@ -59,6 +60,7 @@ public class WindowController {
     private static final int HORIZONTAL_LABEL_DIFFERENCE = 4;
     private static final double DIVIDER_MAX_WIDTH = 0.86;
     private static final int MAX_ROWS = 53;
+    // Deprecated: This int was used to store the maximum possible cols in a Conway's Map.
     private static final int MAX_COLS = 61;
 
     /*
@@ -97,6 +99,19 @@ public class WindowController {
     @FXML
     private TextField cycText;
 
+    private void intro(){
+        _map = Maps.INTRO_MAP.getMap();
+        for(int r = 0; r < _lbls.length; r++){
+            for(int c = 0; c < _lbls[0].length; c++){
+                if(_map[r][c] == 1){
+                    _lbls[r][c].setGraphic(new ImageView(_cell));
+                }
+                else{
+                    _lbls[r][c].setGraphic(new ImageView(_dead));
+                }
+            }
+        }
+    }
     /*
     private void rePopulate();
     This method is used to repopulate the map to the specified size with random status for each cell when the
@@ -192,7 +207,7 @@ public class WindowController {
     @FXML
     private void load() throws IOException {
         mainwin.setDisable(true);
-        String fileName = FileManager.getFileName();
+        String fileName = FileManager.getFileName(mainwin);
         try {
             _map = FileManager.getFileData(fileName);
         } catch (IOException e) {
@@ -402,6 +417,7 @@ public class WindowController {
     private void loadMyFirstConway() throws IOException {
         if(!FileManager.verifyFirstConwayMap()){
             rePopulate();
+            intro();
             FileManager.createFirstConwayMap(_map);
         }
         else{
@@ -421,8 +437,7 @@ public class WindowController {
     dead cells after each cycle according to Conway's rules.
     */
     private void setImage(){
-        Conway obj = new Conway(_map);
-        _map = obj.updateMap();
+        _map = Conway.updateMap(_map);
         cycles.setText("" + (++_cycleCount + _cycleTotal));
         for(int r = 0; r < _lbls.length; r++){
             for(int c = 0; c < _lbls[0].length; c++){
